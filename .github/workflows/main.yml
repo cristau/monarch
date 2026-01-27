@@ -26,8 +26,12 @@ jobs:
       
       - name: Fix Monarch API endpoint
         run: |
-          # Fix the API endpoint (monarchmoney.com -> monarch.com)
-          sed -i 's|api.monarchmoney.com|api.monarch.com|g' $(python -c "import monarchmoney; print(monarchmoney.__file__)")
+          # Find and fix the API endpoint in the installed package
+          MONARCH_FILE=$(python -c "import monarchmoney; import os; print(os.path.join(os.path.dirname(monarchmoney.__file__), 'monarchmoney.py'))")
+          echo "Fixing file: $MONARCH_FILE"
+          sed -i 's|api.monarchmoney.com|api.monarch.com|g' "$MONARCH_FILE"
+          # Verify the fix
+          grep -n "BASE_URL" "$MONARCH_FILE" | head -5
       
       - name: Run report
         env:

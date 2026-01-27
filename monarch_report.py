@@ -239,6 +239,8 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime) -> tu
     
     # Format changes
     inv_change_str, inv_change_class = format_change(inv_current, inv_previous)
+    real_estate_change_str, real_estate_change_class = format_change(real_estate_current, real_estate_previous)
+    assets_change_str, assets_change_class = format_change(total_assets, total_assets_previous)
     debt_change_str, debt_change_class = format_debt_change(
         loan_current + credit_current, 
         loan_previous + credit_previous
@@ -270,12 +272,16 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime) -> tu
 
 NET WORTH: {format_currency(net_worth_current, show_sign=True)}  ({nw_change_str})
 
-NET WORTH SNAPSHOT
-------------------
-Investments:    {format_currency(inv_current)}  ({inv_change_str} {inv_label})
-Total Debt:     {format_currency(total_debt)}  ({debt_change_str} {loan_label})
-  - Mortgage:   {format_currency(abs(loan_current))}
-  - Credit:     {format_currency(abs(credit_current))}
+ASSETS & LIABILITIES
+--------------------
+Total Assets:   {format_currency(total_assets)}  ({assets_change_str})
+  - Real Estate:  {format_currency(real_estate_current)}
+  - Investments:  {format_currency(inv_current)}
+  - Cash:         {format_currency(cash_current)}
+
+Total Debt:     {format_currency(total_debt)}  ({debt_change_str})
+  - Mortgage:     {format_currency(abs(loan_current))}
+  - Credit Cards: {format_currency(abs(credit_current))}
 
 CASHFLOW
 --------
@@ -357,12 +363,26 @@ SPENDING BY CATEGORY
         <div class="section-title">📈 Assets & Liabilities</div>
         <div class="net-worth-grid">
             <div class="nw-card investments">
-                <div class="nw-label">Investments</div>
-                <div class="nw-value">{format_currency(inv_current)}</div>
-                <div class="nw-change {inv_change_class}">{inv_change_str}</div>
+                <div class="nw-label">Total Assets</div>
+                <div class="nw-value">{format_currency(total_assets)}</div>
+                <div class="nw-change {assets_change_class}">{assets_change_str}</div>
+                <div class="debt-breakdown" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>Real Estate:</span>
+                        <span>{format_currency(real_estate_current)} <span class="{real_estate_change_class}" style="font-size: 11px;">({real_estate_change_str})</span></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>Investments:</span>
+                        <span>{format_currency(inv_current)} <span class="{inv_change_class}" style="font-size: 11px;">({inv_change_str})</span></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Cash:</span>
+                        <span>{format_currency(cash_current)}</span>
+                    </div>
+                </div>
             </div>
             <div class="nw-card debt">
-                <div class="nw-label">Total Debt</div>
+                <div class="nw-label">Total Liabilities</div>
                 <div class="nw-value">{format_currency(total_debt)}</div>
                 <div class="nw-change {debt_change_class}">{debt_change_str}</div>
                 <div class="debt-breakdown" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1);">

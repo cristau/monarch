@@ -366,18 +366,18 @@ SPENDING BY CATEGORY
                 <div class="nw-label">Total Assets</div>
                 <div class="nw-value">{format_currency(total_assets)}</div>
                 <div class="nw-change {assets_change_class}">{assets_change_str}</div>
-                <div class="debt-breakdown" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1);">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <span>Real Estate:</span>
-                        <span>{format_currency(real_estate_current)} <span class="{real_estate_change_class}" style="font-size: 11px;">({real_estate_change_str})</span></span>
+                <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #666;">Real Estate</span>
+                        <span style="font-weight: 500;">{format_currency(real_estate_current)}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <span>Investments:</span>
-                        <span>{format_currency(inv_current)} <span class="{inv_change_class}" style="font-size: 11px;">({inv_change_str})</span></span>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #666;">Investments</span>
+                        <span style="font-weight: 500;">{format_currency(inv_current)}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span>Cash:</span>
-                        <span>{format_currency(cash_current)}</span>
+                        <span style="color: #666;">Cash</span>
+                        <span style="font-weight: 500;">{format_currency(cash_current)}</span>
                     </div>
                 </div>
             </div>
@@ -385,14 +385,14 @@ SPENDING BY CATEGORY
                 <div class="nw-label">Total Liabilities</div>
                 <div class="nw-value">{format_currency(total_debt)}</div>
                 <div class="nw-change {debt_change_class}">{debt_change_str}</div>
-                <div class="debt-breakdown" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1);">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <span>Mortgage:</span>
-                        <span>{format_currency(abs(loan_current))} <span class="{mortgage_change_class}" style="font-size: 11px;">({mortgage_change_str})</span></span>
+                <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #666;">Mortgage</span>
+                        <span style="font-weight: 500;">{format_currency(abs(loan_current))}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span>Credit Cards:</span>
-                        <span>{format_currency(abs(credit_current))} <span class="{credit_change_class}" style="font-size: 11px;">({credit_change_str})</span></span>
+                        <span style="color: #666;">Credit Cards</span>
+                        <span style="font-weight: 500;">{format_currency(abs(credit_current))}</span>
                     </div>
                 </div>
             </div>

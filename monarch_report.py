@@ -21,6 +21,7 @@ from dotenv import load_dotenv
 # Patch the Monarch API endpoint (temporary fix for api.monarchmoney.com -> api.monarch.com)
 import monarchmoney.monarchmoney as mm_module
 mm_module.MonarchMoneyEndpoints.BASE_URL = 'https://api.monarch.com'
+print(f"DEBUG: BASE_URL is now: {mm_module.MonarchMoneyEndpoints.BASE_URL}")
 
 load_dotenv()
 

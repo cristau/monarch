@@ -26,12 +26,29 @@ jobs:
       
       - name: Fix Monarch API endpoint
         run: |
-          # Find and fix the API endpoint in the installed package
-          MONARCH_FILE=$(python -c "import monarchmoney; import os; print(os.path.join(os.path.dirname(monarchmoney.__file__), 'monarchmoney.py'))")
-          echo "Fixing file: $MONARCH_FILE"
-          sed -i 's|api.monarchmoney.com|api.monarch.com|g' "$MONARCH_FILE"
-          # Verify the fix
-          grep -n "BASE_URL" "$MONARCH_FILE" | head -5
+          # Find all monarchmoney.py files and fix them
+          find /opt/hostedtoolcache -name "monarchmoney.py" -exec sed -i 's|api.monarchmoney.com|api.monarch.com|g' {} \;
+          # Also check site-packages directly
+          python -c "
+          import monarchmoney
+          import os
+          pkg_dir = os.path.dirname(monarchmoney.__file__)
+          target = os.path.join(pkg_dir, 'monarchmoney.py')
+          print(f'Package dir: {pkg_dir}')
+          print(f'Target file: {target}')
+          with open(target, 'r') as f:
+              content = f.read()
+          content = content.replace('api.monarchmoney.com', 'api.monarch.com')
+          with open(target, 'w') as f:
+              f.write(content)
+          print('Fix applied!')
+          # Verify
+          with open(target, 'r') as f:
+              for line in f:
+                  if 'BASE_URL' in line:
+                      print(line.strip())
+                      break
+          "
       
       - name: Run report
         env:

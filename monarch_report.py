@@ -23,7 +23,7 @@ import monarchmoney.monarchmoney as mm_module
 mm_module.MonarchMoneyEndpoints.BASE_URL = 'https://api.monarch.com'
 print(f"DEBUG: BASE_URL is now: {mm_module.MonarchMoneyEndpoints.BASE_URL}")
 
-load_dotenv()
+# load_dotenv() # not needed for github actions
 
 # =============================================================================
 # Configuration - pulled from .env file

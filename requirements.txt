@@ -1,0 +1,4 @@
+monarchmoney
+python-dotenv
+gql==3.5.0
+pyotp

@@ -103,6 +103,12 @@ async def fetch_monarch_data(start_date: datetime, end_date: datetime) -> dict:
         account_type='depository'
     )
     
+    real_estate_snapshots = await mm.get_aggregate_snapshots(
+        start_date=snapshot_start,
+        end_date=end_str,
+        account_type='real_estate'
+    )
+    
     return {
         "summary": cashflow_summary,
         "cashflow": cashflow,
@@ -110,6 +116,7 @@ async def fetch_monarch_data(start_date: datetime, end_date: datetime) -> dict:
         "loan_snapshots": loan_snapshots,
         "credit_snapshots": credit_snapshots,
         "depository_snapshots": depository_snapshots,
+        "real_estate_snapshots": real_estate_snapshots,
     }
 
 
@@ -201,6 +208,7 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime) -> tu
     loan_current, loan_previous, loan_label, loan_compare_date = get_snapshot_values(data.get("loan_snapshots", {}))
     credit_current, credit_previous, credit_label, credit_compare_date = get_snapshot_values(data.get("credit_snapshots", {}))
     cash_current, cash_previous, cash_label, cash_compare_date = get_snapshot_values(data.get("depository_snapshots", {}))
+    real_estate_current, real_estate_previous, re_label, re_compare_date = get_snapshot_values(data.get("real_estate_snapshots", {}))
     
     # Format comparison date for display
     if inv_compare_date:
@@ -212,13 +220,13 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime) -> tu
         compare_date_formatted = "N/A"
     
     # Calculate Net Worth (assets - liabilities)
-    # Assets: investments + cash
+    # Assets: investments + cash + real estate
     # Liabilities: loans + credit cards (these are already negative)
-    total_assets = inv_current + cash_current
+    total_assets = inv_current + cash_current + real_estate_current
     total_liabilities = abs(loan_current) + abs(credit_current)
     net_worth_current = total_assets - total_liabilities
     
-    total_assets_previous = inv_previous + cash_previous
+    total_assets_previous = inv_previous + cash_previous + real_estate_previous
     total_liabilities_previous = abs(loan_previous) + abs(credit_previous)
     net_worth_previous = total_assets_previous - total_liabilities_previous
     

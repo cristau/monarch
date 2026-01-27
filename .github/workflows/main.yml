@@ -2,9 +2,8 @@ name: Weekly Monarch Money Report
 
 on:
   schedule:
-    # Runs at 8:00 AM CST every Sunday (14:00 UTC)
     - cron: '0 14 * * 0'
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   send-report:
@@ -13,14 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: main
-      
-      - name: Show file contents
-        run: |
-          echo "=== First 30 lines of monarch_report.py ==="
-          head -30 monarch_report.py
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -42,4 +33,10 @@ jobs:
           SMTP_EMAIL: ${{ secrets.SMTP_EMAIL }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
-        run: python monarch_report.py
+        run: |
+          python -c "
+          import monarchmoney.monarchmoney as mm
+          mm.MonarchMoneyEndpoints.BASE_URL = 'https://api.monarch.com'
+          print(f'Patched BASE_URL to: {mm.MonarchMoneyEndpoints.BASE_URL}')
+          exec(open('monarch_report.py').read())
+          "

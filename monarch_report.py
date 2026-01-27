@@ -97,12 +97,19 @@ async def fetch_monarch_data(start_date: datetime, end_date: datetime) -> dict:
         account_type='credit'
     )
     
+    depository_snapshots = await mm.get_aggregate_snapshots(
+        start_date=snapshot_start,
+        end_date=end_str,
+        account_type='depository'
+    )
+    
     return {
         "summary": cashflow_summary,
         "cashflow": cashflow,
         "brokerage_snapshots": brokerage_snapshots,
         "loan_snapshots": loan_snapshots,
         "credit_snapshots": credit_snapshots,
+        "depository_snapshots": depository_snapshots,
     }
 
 
@@ -193,6 +200,7 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime) -> tu
     inv_current, inv_previous, inv_label, inv_compare_date = get_snapshot_values(data.get("brokerage_snapshots", {}))
     loan_current, loan_previous, loan_label, loan_compare_date = get_snapshot_values(data.get("loan_snapshots", {}))
     credit_current, credit_previous, credit_label, credit_compare_date = get_snapshot_values(data.get("credit_snapshots", {}))
+    cash_current, cash_previous, cash_label, cash_compare_date = get_snapshot_values(data.get("depository_snapshots", {}))
     
     # Format comparison date for display
     if inv_compare_date:
@@ -202,6 +210,20 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime) -> tu
             compare_date_formatted = inv_compare_date
     else:
         compare_date_formatted = "N/A"
+    
+    # Calculate Net Worth (assets - liabilities)
+    # Assets: investments + cash
+    # Liabilities: loans + credit cards (these are already negative)
+    total_assets = inv_current + cash_current
+    total_liabilities = abs(loan_current) + abs(credit_current)
+    net_worth_current = total_assets - total_liabilities
+    
+    total_assets_previous = inv_previous + cash_previous
+    total_liabilities_previous = abs(loan_previous) + abs(credit_previous)
+    net_worth_previous = total_assets_previous - total_liabilities_previous
+    
+    # Format net worth change
+    nw_change_str, nw_change_class = format_change(net_worth_current, net_worth_previous)
     
     # Total debt (loans + credit cards)
     total_debt = abs(loan_current) + abs(credit_current)
@@ -238,6 +260,8 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime) -> tu
 {date_range}
 {'=' * 50}
 
+NET WORTH: {format_currency(net_worth_current, show_sign=True)}  ({nw_change_str})
+
 NET WORTH SNAPSHOT
 ------------------
 Investments:    {format_currency(inv_current)}  ({inv_change_str} {inv_label})
@@ -263,6 +287,7 @@ SPENDING BY CATEGORY
     # HTML version
     savings_class = "positive" if savings >= 0 else "negative"
     savings_display = format_currency(savings, show_sign=True)
+    nw_display_class = "positive" if net_worth_current >= 0 else "negative"
     
     html = f"""
 <!DOCTYPE html>
@@ -272,7 +297,14 @@ SPENDING BY CATEGORY
         body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }}
         .container {{ background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }}
         h1 {{ color: #1a1a1a; font-size: 24px; margin-bottom: 5px; }}
-        .date-range {{ color: #666; font-size: 14px; margin-bottom: 30px; }}
+        .date-range {{ color: #666; font-size: 14px; margin-bottom: 20px; }}
+        .net-worth-hero {{ background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 25px; margin-bottom: 25px; text-align: center; }}
+        .net-worth-hero .label {{ color: rgba(255,255,255,0.7); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }}
+        .net-worth-hero .value {{ color: white; font-size: 36px; font-weight: 700; margin: 10px 0; }}
+        .net-worth-hero .change {{ font-size: 14px; }}
+        .net-worth-hero .change.positive {{ color: #4ade80; }}
+        .net-worth-hero .change.negative {{ color: #f87171; }}
+        .net-worth-hero .compare-date {{ color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 8px; }}
         .section-title {{ font-size: 14px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; margin: 25px 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #eee; }}
         .net-worth-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }}
         .nw-card {{ background: #f8f9fa; border-radius: 8px; padding: 15px; }}
@@ -307,8 +339,14 @@ SPENDING BY CATEGORY
         <h1>💰 4-Week Financial Summary</h1>
         <div class="date-range">{date_range}</div>
         
-        <div class="section-title">📈 Net Worth Snapshot</div>
-        <div style="font-size: 12px; color: #888; margin-bottom: 12px;">Changes compared to {compare_date_formatted}</div>
+        <div class="net-worth-hero">
+            <div class="label">Net Worth</div>
+            <div class="value">{format_currency(net_worth_current, show_sign=True)}</div>
+            <div class="change {nw_change_class}">{nw_change_str}</div>
+            <div class="compare-date">compared to {compare_date_formatted}</div>
+        </div>
+        
+        <div class="section-title">📈 Assets & Liabilities</div>
         <div class="net-worth-grid">
             <div class="nw-card investments">
                 <div class="nw-label">Investments</div>

@@ -1,4 +1,4 @@
-# v2
+# v3
 name: Weekly Monarch Money Report
 
 on:
@@ -35,12 +35,11 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
         run: |
-          python << 'EOF'
+          python << 'SCRIPT'
           import monarchmoney.monarchmoney as mm
           mm.MonarchMoneyEndpoints.BASE_URL = "https://api.monarch.com"
-          print(f"Patched BASE_URL to: {mm.MonarchMoneyEndpoints.BASE_URL}")
           exec(open("monarch_report.py").read())
-          EOF
+          SCRIPT
       
       - name: Run detailed report
         env:
@@ -53,9 +52,8 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
         run: |
-          python << 'EOF'
+          python << 'SCRIPT'
           import monarchmoney.monarchmoney as mm
           mm.MonarchMoneyEndpoints.BASE_URL = "https://api.monarch.com"
-          print(f"Patched BASE_URL to: {mm.MonarchMoneyEndpoints.BASE_URL}")
           exec(open("monarch_report_detailed.py").read())
-          EOF
+          SCRIPT

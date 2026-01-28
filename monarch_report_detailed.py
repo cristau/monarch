@@ -367,7 +367,7 @@ SPENDING BY CATEGORY (vs {prev_date_range})
         .net-worth-hero .change.negative {{ color: #f87171; }}
         .net-worth-hero .compare-date {{ color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 8px; }}
         .section-title {{ font-size: 14px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; margin: 25px 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #eee; }}
-        .net-worth-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }}
+        .net-worth-grid {{ display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }}
         .nw-card {{ background: #f8f9fa; border-radius: 8px; padding: 15px; }}
         .nw-card.investments {{ background: #e8f5e9; }}
         .nw-card.debt {{ background: #fff3e0; }}
@@ -428,24 +428,24 @@ SPENDING BY CATEGORY (vs {prev_date_range})
                 <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
                     <div class="line-item">
                         <span class="line-item-name">Real Estate</span>
-                        <span>
+                        <div>
                             <span class="line-item-value">{format_currency(real_estate_current)}</span>
                             <span class="line-item-change {real_estate_change_class}">{real_estate_change_str}</span>
-                        </span>
+                        </div>
                     </div>
                     <div class="line-item">
                         <span class="line-item-name">Investments</span>
-                        <span>
+                        <div>
                             <span class="line-item-value">{format_currency(inv_current)}</span>
                             <span class="line-item-change {inv_change_class}">{inv_change_str}</span>
-                        </span>
+                        </div>
                     </div>
                     <div class="line-item">
                         <span class="line-item-name">Cash</span>
-                        <span>
+                        <div>
                             <span class="line-item-value">{format_currency(cash_current)}</span>
                             <span class="line-item-change {cash_change_class}">{cash_change_str}</span>
-                        </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -456,17 +456,17 @@ SPENDING BY CATEGORY (vs {prev_date_range})
                 <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
                     <div class="line-item">
                         <span class="line-item-name">Mortgage</span>
-                        <span>
+                        <div>
                             <span class="line-item-value">{format_currency(abs(loan_current))}</span>
                             <span class="line-item-change {mortgage_change_class}">{mortgage_change_str}</span>
-                        </span>
+                        </div>
                     </div>
                     <div class="line-item">
                         <span class="line-item-name">Credit Cards</span>
-                        <span>
+                        <div>
                             <span class="line-item-value">{format_currency(abs(credit_current))}</span>
                             <span class="line-item-change {credit_change_class}">{credit_change_str}</span>
-                        </span>
+                        </div>
                     </div>
                 </div>
             </div>

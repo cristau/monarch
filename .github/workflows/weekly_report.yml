@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install monarchmoney python-dotenv gql==3.5.0
       
-      - name: Run report
+      - name: Run summary report
         env:
           MONARCH_EMAIL: ${{ secrets.MONARCH_EMAIL }}
           MONARCH_PASSWORD: ${{ secrets.MONARCH_PASSWORD }}
@@ -40,4 +40,22 @@ jobs:
           mm.MonarchMoneyEndpoints.BASE_URL = "https://api.monarch.com"
           print(f"Patched BASE_URL to: {mm.MonarchMoneyEndpoints.BASE_URL}")
           exec(open("monarch_report.py").read())
+          EOF
+      
+      - name: Run detailed report
+        env:
+          MONARCH_EMAIL: ${{ secrets.MONARCH_EMAIL }}
+          MONARCH_PASSWORD: ${{ secrets.MONARCH_PASSWORD }}
+          MONARCH_MFA_SECRET: ${{ secrets.MONARCH_MFA_SECRET }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_EMAIL: ${{ secrets.SMTP_EMAIL }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
+        run: |
+          python << 'EOF'
+          import monarchmoney.monarchmoney as mm
+          mm.MonarchMoneyEndpoints.BASE_URL = "https://api.monarch.com"
+          print(f"Patched BASE_URL to: {mm.MonarchMoneyEndpoints.BASE_URL}")
+          exec(open("monarch_report_detailed.py").read())
           EOF

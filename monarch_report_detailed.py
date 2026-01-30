@@ -122,6 +122,12 @@ async def fetch_monarch_data(start_date: datetime, end_date: datetime, prev_star
         account_type='real_estate'
     )
     
+    vehicle_snapshots = await mm.get_aggregate_snapshots(
+        start_date=snapshot_start,
+        end_date=end_str,
+        account_type='vehicle'
+    )
+    
     return {
         "summary": cashflow_summary,
         "cashflow": cashflow,
@@ -131,6 +137,7 @@ async def fetch_monarch_data(start_date: datetime, end_date: datetime, prev_star
         "credit_snapshots": credit_snapshots,
         "depository_snapshots": depository_snapshots,
         "real_estate_snapshots": real_estate_snapshots,
+        "vehicle_snapshots": vehicle_snapshots,
     }
 
 
@@ -253,6 +260,7 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime, prev_
     credit_current, credit_previous, credit_label, credit_compare_date = get_snapshot_values(data.get("credit_snapshots", {}))
     cash_current, cash_previous, cash_label, cash_compare_date = get_snapshot_values(data.get("depository_snapshots", {}))
     real_estate_current, real_estate_previous, re_label, re_compare_date = get_snapshot_values(data.get("real_estate_snapshots", {}))
+    vehicle_current, vehicle_previous, vehicle_label, vehicle_compare_date = get_snapshot_values(data.get("vehicle_snapshots", {}))
     
     # Format comparison date for display
     if inv_compare_date:
@@ -264,11 +272,11 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime, prev_
         compare_date_formatted = "N/A"
     
     # Calculate Net Worth (assets - liabilities)
-    total_assets = inv_current + cash_current + real_estate_current
+    total_assets = inv_current + cash_current + real_estate_current + vehicle_current
     total_liabilities = abs(loan_current) + abs(credit_current)
     net_worth_current = total_assets - total_liabilities
     
-    total_assets_previous = inv_previous + cash_previous + real_estate_previous
+    total_assets_previous = inv_previous + cash_previous + real_estate_previous + vehicle_previous
     total_liabilities_previous = abs(loan_previous) + abs(credit_previous)
     net_worth_previous = total_assets_previous - total_liabilities_previous
     
@@ -282,6 +290,7 @@ def build_email_body(data: dict, start_date: datetime, end_date: datetime, prev_
     assets_change_str, assets_change_class = format_change(total_assets, total_assets_previous)
     inv_change_str, inv_change_class = format_change(inv_current, inv_previous)
     real_estate_change_str, real_estate_change_class = format_change(real_estate_current, real_estate_previous)
+    vehicle_change_str, vehicle_change_class = format_change(vehicle_current, vehicle_previous)
     cash_change_str, cash_change_class = format_change_simple(cash_current, cash_previous)
     
     debt_change_str, debt_change_class = format_debt_change(
@@ -335,6 +344,7 @@ Change: {nw_change_str} (compared to {compare_date_formatted})
 
 ASSETS: {format_currency(total_assets)} ({assets_change_str})
   - Real Estate:  {format_currency(real_estate_current)} ({real_estate_change_str})
+  - Vehicles:     {format_currency(vehicle_current)} ({vehicle_change_str})
   - Investments:  {format_currency(inv_current)} ({inv_change_str})
   - Cash:         {format_currency(cash_current)} ({cash_change_str})
 
@@ -435,6 +445,13 @@ SPENDING BY CATEGORY (vs {prev_date_range})
                         <div>
                             <span class="line-item-value">{format_currency(real_estate_current)}</span>
                             <span class="line-item-change {real_estate_change_class}">{real_estate_change_str}</span>
+                        </div>
+                    </div>
+                    <div class="line-item">
+                        <span class="line-item-name">Vehicles</span>
+                        <div>
+                            <span class="line-item-value">{format_currency(vehicle_current)}</span>
+                            <span class="line-item-change {vehicle_change_class}">{vehicle_change_str}</span>
                         </div>
                     </div>
                     <div class="line-item">
